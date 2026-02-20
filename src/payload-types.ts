@@ -69,6 +69,9 @@ export interface Config {
   collections: {
     users: User;
     media: Media;
+    tables: Table;
+    products: Product;
+    categories: Category;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -78,6 +81,9 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    tables: TablesSelect<false> | TablesSelect<true>;
+    products: ProductsSelect<false> | ProductsSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -160,6 +166,75 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tables".
+ */
+export interface Table {
+  id: string;
+  title: 'normal-table' | 'vip-table' | 'family-table' | 'outdoor-table';
+  tableNumber: string;
+  capacity?: number | null;
+  status?: ('available' | 'occupied') | null;
+  addons?:
+    | {
+        addonName: string;
+        addonCapacity?: number | null;
+        addonPrice?: number | null;
+        addonStatus?: ('available' | 'occupied') | null;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products".
+ */
+export interface Product {
+  id: string;
+  name: string;
+  images: (string | Media)[];
+  description?: string | null;
+  variants: {
+    unit: 'g' | 'kg' | 'ltr' | 'pcs';
+    /**
+     * Example: 1 kg, 500 g, 1 piece
+     */
+    quantity: number;
+    /**
+     * Rate per unit (₹ per kg / piece)
+     */
+    rate: number;
+    /**
+     * Auto calculated: rate × quantity
+     */
+    price?: number | null;
+    discount?: number | null;
+    tax?: number | null;
+    /**
+     * Final selling price
+     */
+    netPrice?: number | null;
+    stock?: number | null;
+    id?: string | null;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories".
+ */
+export interface Category {
+  id: string;
+  name: string;
+  slug?: string | null;
+  parent?: (string | null) | Category;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -189,6 +264,18 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'tables';
+        value: string | Table;
+      } | null)
+    | ({
+        relationTo: 'products';
+        value: string | Product;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -271,6 +358,62 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "tables_select".
+ */
+export interface TablesSelect<T extends boolean = true> {
+  title?: T;
+  tableNumber?: T;
+  capacity?: T;
+  status?: T;
+  addons?:
+    | T
+    | {
+        addonName?: T;
+        addonCapacity?: T;
+        addonPrice?: T;
+        addonStatus?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "products_select".
+ */
+export interface ProductsSelect<T extends boolean = true> {
+  name?: T;
+  images?: T;
+  description?: T;
+  variants?:
+    | T
+    | {
+        unit?: T;
+        quantity?: T;
+        rate?: T;
+        price?: T;
+        discount?: T;
+        tax?: T;
+        netPrice?: T;
+        stock?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
