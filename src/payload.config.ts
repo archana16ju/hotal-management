@@ -10,6 +10,7 @@ import { Media } from './collections/Media'
 import { Tables } from './collections/Tables'
 import { Products } from './collections/products'
 import { Categories } from './collections/categories'
+import CompanyProfile from './collections/CompanyProfile'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -26,7 +27,8 @@ export default buildConfig({
     Media,
     Tables,
     Products,
-    Categories
+    Categories,
+    CompanyProfile
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

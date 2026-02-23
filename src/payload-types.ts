@@ -72,6 +72,7 @@ export interface Config {
     tables: Table;
     products: Product;
     categories: Category;
+    'company-profile': CompanyProfile;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     tables: TablesSelect<false> | TablesSelect<true>;
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
+    'company-profile': CompanyProfileSelect<false> | CompanyProfileSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -170,16 +172,10 @@ export interface Media {
  */
 export interface Table {
   id: string;
-  title: 'normal-table' | 'vip-table' | 'family-table' | 'outdoor-table';
-  tableNumber: string;
-  capacity?: number | null;
-  status?: ('available' | 'occupied') | null;
-  addons?:
+  sections?:
     | {
-        addonName: string;
-        addonCapacity?: number | null;
-        addonPrice?: number | null;
-        addonStatus?: ('available' | 'occupied') | null;
+        sectionTitle: string;
+        tableCount: number;
         id?: string | null;
       }[]
     | null;
@@ -192,32 +188,24 @@ export interface Table {
  */
 export interface Product {
   id: string;
+  active?: boolean | null;
   name: string;
   images: (string | Media)[];
   description?: string | null;
   variants: {
-    unit: 'g' | 'kg' | 'ltr' | 'pcs';
-    /**
-     * Example: 1 kg, 500 g, 1 piece
-     */
+    unit: 'g' | 'kg' | 'pcs';
     quantity: number;
-    /**
-     * Rate per unit (₹ per kg / piece)
-     */
     rate: number;
-    /**
-     * Auto calculated: rate × quantity
-     */
     price?: number | null;
     discount?: number | null;
     tax?: number | null;
-    /**
-     * Final selling price
-     */
     netPrice?: number | null;
     stock?: number | null;
+    stockStatus?: ('in-stock' | 'low-stock' | 'out-of-stock') | null;
     id?: string | null;
   }[];
+  category: string | Category;
+  productBarcode?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -230,6 +218,33 @@ export interface Category {
   name: string;
   slug?: string | null;
   parent?: (string | null) | Category;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-profile".
+ */
+export interface CompanyProfile {
+  id: string;
+  companyName: string;
+  /**
+   * Enter GS1 Company Prefix (4–7 digits). Example: 1234. Do not include country code (890).
+   */
+  companyPrefix: string;
+  /**
+   * Enter 15-character GSTIN (Goods and Services Tax Identification Number). Example: 29ABCDE1234F2Z5
+   */
+  gstNumber?: string | null;
+  phone?: string | null;
+  email?: string | null;
+  website?: string | null;
+  address?: string | null;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  pincode?: string | null;
+  logo?: (string | null) | Media;
   updatedAt: string;
   createdAt: string;
 }
@@ -276,6 +291,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'categories';
         value: string | Category;
+      } | null)
+    | ({
+        relationTo: 'company-profile';
+        value: string | CompanyProfile;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -364,17 +383,11 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "tables_select".
  */
 export interface TablesSelect<T extends boolean = true> {
-  title?: T;
-  tableNumber?: T;
-  capacity?: T;
-  status?: T;
-  addons?:
+  sections?:
     | T
     | {
-        addonName?: T;
-        addonCapacity?: T;
-        addonPrice?: T;
-        addonStatus?: T;
+        sectionTitle?: T;
+        tableCount?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -385,6 +398,7 @@ export interface TablesSelect<T extends boolean = true> {
  * via the `definition` "products_select".
  */
 export interface ProductsSelect<T extends boolean = true> {
+  active?: T;
   name?: T;
   images?: T;
   description?: T;
@@ -399,8 +413,11 @@ export interface ProductsSelect<T extends boolean = true> {
         tax?: T;
         netPrice?: T;
         stock?: T;
+        stockStatus?: T;
         id?: T;
       };
+  category?: T;
+  productBarcode?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -412,6 +429,26 @@ export interface CategoriesSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
   parent?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "company-profile_select".
+ */
+export interface CompanyProfileSelect<T extends boolean = true> {
+  companyName?: T;
+  companyPrefix?: T;
+  gstNumber?: T;
+  phone?: T;
+  email?: T;
+  website?: T;
+  address?: T;
+  city?: T;
+  state?: T;
+  country?: T;
+  pincode?: T;
+  logo?: T;
   updatedAt?: T;
   createdAt?: T;
 }

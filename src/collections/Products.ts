@@ -1,13 +1,21 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload';
+import { generateBarcode } from '../hooks/generateBarcode';
+import { ProductActionButton } from '../components/ProductActionButton';
 
 export const Products: CollectionConfig = {
   slug: 'products',
 
-  admin: {
-    useAsTitle: 'name',
-  },
+admin: {
+  useAsTitle: 'name',
+},
 
   fields: [
+    {
+      name: 'active',
+      type: 'checkbox',
+      defaultValue: true,
+    },
+
     {
       name: 'name',
       type: 'text',
@@ -31,7 +39,6 @@ export const Products: CollectionConfig = {
       name: 'variants',
       type: 'array',
       required: true,
-
       fields: [
         {
           name: 'unit',
@@ -40,7 +47,6 @@ export const Products: CollectionConfig = {
           options: [
             { label: 'Gram', value: 'g' },
             { label: 'Kilogram', value: 'kg' },
-            { label: 'Liter', value: 'ltr' },
             { label: 'Piece', value: 'pcs' },
           ],
         },
@@ -48,25 +54,16 @@ export const Products: CollectionConfig = {
           name: 'quantity',
           type: 'number',
           required: true,
-          admin: {
-            description: 'Example: 1 kg, 500 g, 1 piece',
-          },
         },
         {
           name: 'rate',
           type: 'number',
           required: true,
-          admin: {
-            description: 'Rate per unit (₹ per kg / piece)',
-          },
         },
         {
           name: 'price',
           type: 'number',
-          admin: {
-            readOnly: true,
-            description: 'Auto calculated: rate × quantity',
-          },
+          admin: { readOnly: true },
         },
         {
           name: 'discount',
@@ -81,48 +78,75 @@ export const Products: CollectionConfig = {
         {
           name: 'netPrice',
           type: 'number',
-          admin: {
-            readOnly: true,
-            description: 'Final selling price',
-          },
+          admin: { readOnly: true },
         },
         {
           name: 'stock',
           type: 'number',
           defaultValue: 0,
         },
+        {
+          name: 'stockStatus',
+          type: 'select',
+          options: [
+            { label: 'In Stock', value: 'in-stock' },
+            { label: 'Low Stock', value: 'low-stock' },
+            { label: 'Out of Stock', value: 'out-of-stock' },
+          ],
 
+    },
       ],
+    },
+
+    {
+      name: 'category',
+      type: 'relationship',
+      relationTo: 'categories',
+      required: true,
+      admin: { position: 'sidebar' },
+    },
+
+    {
+      name: 'productBarcode',
+      type: 'text',
+      unique: true,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+      },
     },
   ],
 
   hooks: {
     beforeChange: [
+      generateBarcode,
+
       ({ data }) => {
 
         if (data.variants && Array.isArray(data.variants)) {
 
           data.variants = data.variants.map((variant: any) => {
 
-            const rate = variant.rate || 0
-            const quantity = variant.quantity || 0
-            const discount = variant.discount || 0
-            const tax = variant.tax || 0
+            const rate = variant.rate || 0;
+            const quantity = variant.quantity || 0;
+            const discount = variant.discount || 0;
+            const tax = variant.tax || 0;
 
-            const price = rate * quantity
-
-            const netPrice = price - discount + tax
+            const price = rate * quantity;
+            const netPrice = price - discount + tax;
 
             return {
               ...variant,
               price,
               netPrice,
-            }
-          })
+            };
+
+          });
+
         }
 
-        return data
+        return data;
       },
     ],
   },
-}
+};
