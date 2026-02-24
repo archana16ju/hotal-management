@@ -73,6 +73,7 @@ export interface Config {
     products: Product;
     categories: Category;
     'company-profile': CompanyProfile;
+    orders: Order;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     products: ProductsSelect<false> | ProductsSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'company-profile': CompanyProfileSelect<false> | CompanyProfileSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -189,6 +191,7 @@ export interface Table {
 export interface Product {
   id: string;
   active?: boolean | null;
+  foodType: 'veg' | 'non-veg';
   name: string;
   images: (string | Media)[];
   description?: string | null;
@@ -206,6 +209,10 @@ export interface Product {
   }[];
   category: string | Category;
   productBarcode?: string | null;
+  /**
+   * Enter 4, 6 or 8 digit HSN code as per GST classification
+   */
+  hsnCode?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -236,6 +243,14 @@ export interface CompanyProfile {
    * Enter 15-character GSTIN (Goods and Services Tax Identification Number). Example: 29ABCDE1234F2Z5
    */
   gstNumber?: string | null;
+  /**
+   * 14-digit Food Safety License Number issued by FSSAI
+   */
+  fssaiNumber?: string | null;
+  /**
+   * Udyam registration number issued for MSME businesses
+   */
+  msmeNumber?: string | null;
   phone?: string | null;
   email?: string | null;
   website?: string | null;
@@ -245,6 +260,29 @@ export interface CompanyProfile {
   country?: string | null;
   pincode?: string | null;
   logo?: (string | null) | Media;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: string;
+  products?:
+    | {
+        product: string | Product;
+        priceAtOrder?: number | null;
+        quantity?: number | null;
+        subtotal?: number | null;
+        id?: string | null;
+      }[]
+    | null;
+  kotNumber: number;
+  tableNumber?: number | null;
+  status?: ('ordered' | 'prepared' | 'delivered') | null;
+  invoiceNumber?: string | null;
+  totalAmount?: number | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -295,6 +333,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'company-profile';
         value: string | CompanyProfile;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: string | Order;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -399,6 +441,7 @@ export interface TablesSelect<T extends boolean = true> {
  */
 export interface ProductsSelect<T extends boolean = true> {
   active?: T;
+  foodType?: T;
   name?: T;
   images?: T;
   description?: T;
@@ -418,6 +461,7 @@ export interface ProductsSelect<T extends boolean = true> {
       };
   category?: T;
   productBarcode?: T;
+  hsnCode?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -440,6 +484,8 @@ export interface CompanyProfileSelect<T extends boolean = true> {
   companyName?: T;
   companyPrefix?: T;
   gstNumber?: T;
+  fssaiNumber?: T;
+  msmeNumber?: T;
   phone?: T;
   email?: T;
   website?: T;
@@ -449,6 +495,28 @@ export interface CompanyProfileSelect<T extends boolean = true> {
   country?: T;
   pincode?: T;
   logo?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  products?:
+    | T
+    | {
+        product?: T;
+        priceAtOrder?: T;
+        quantity?: T;
+        subtotal?: T;
+        id?: T;
+      };
+  kotNumber?: T;
+  tableNumber?: T;
+  status?: T;
+  invoiceNumber?: T;
+  totalAmount?: T;
   updatedAt?: T;
   createdAt?: T;
 }

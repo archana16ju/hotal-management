@@ -5,15 +5,45 @@ import { ProductActionButton } from '../components/ProductActionButton';
 export const Products: CollectionConfig = {
   slug: 'products',
 
-admin: {
-  useAsTitle: 'name',
-},
+  admin: {
+    useAsTitle: 'name',
+  },
 
   fields: [
     {
-      name: 'active',
-      type: 'checkbox',
-      defaultValue: true,
+      type: 'row',
+      fields: [
+        {
+          name: 'active',
+          type: 'checkbox',
+          label: 'Active',
+          defaultValue: true,
+          admin: {
+            width: '30%',
+          },
+        },
+        {
+          name: 'foodType',
+          type: 'radio',
+          label: false,
+          defaultValue: 'veg',
+          required: true,
+          options: [
+            {
+              label: 'Veg',
+              value: 'veg',
+            },
+            {
+              label: 'Non-Veg',
+              value: 'non-veg',
+            },
+          ],
+          admin: {
+            layout: 'horizontal',
+            width: '40%',
+          },
+        },
+      ],
     },
 
     {
@@ -93,19 +123,18 @@ admin: {
             { label: 'Low Stock', value: 'low-stock' },
             { label: 'Out of Stock', value: 'out-of-stock' },
           ],
-
-    },
+        },
       ],
     },
-
     {
       name: 'category',
       type: 'relationship',
       relationTo: 'categories',
       required: true,
-      admin: { position: 'sidebar' },
+      admin: { 
+        position: 'sidebar' 
+      },
     },
-
     {
       name: 'productBarcode',
       type: 'text',
@@ -113,6 +142,15 @@ admin: {
       admin: {
         position: 'sidebar',
         readOnly: true,
+      },
+    },
+    {
+      name: 'hsnCode',
+      type: 'text',
+      label: 'HSN Code',
+      admin: {
+        position: 'sidebar',
+        description: 'Enter 4, 6 or 8 digit HSN code as per GST classification',
       },
     },
   ],
@@ -149,4 +187,5 @@ admin: {
       },
     ],
   },
+
 };
