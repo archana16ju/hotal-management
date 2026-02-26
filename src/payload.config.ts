@@ -12,6 +12,7 @@ import { Products } from './collections/products'
 import { Categories } from './collections/categories'
 import CompanyProfile from './collections/CompanyProfile'
 import  Orders  from './collections/Order'
+import { QrSettings } from './collections/QrSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -30,7 +31,8 @@ export default buildConfig({
     Products,
     Categories,
     CompanyProfile,
-    Orders
+    Orders,
+    QrSettings
   ],
   editor: lexicalEditor(),
   secret: process.env.PAYLOAD_SECRET || '',

@@ -74,6 +74,7 @@ export interface Config {
     categories: Category;
     'company-profile': CompanyProfile;
     orders: Order;
+    'qr-settings': QrSetting;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -88,6 +89,7 @@ export interface Config {
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     'company-profile': CompanyProfileSelect<false> | CompanyProfileSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    'qr-settings': QrSettingsSelect<false> | QrSettingsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -174,10 +176,11 @@ export interface Media {
  */
 export interface Table {
   id: string;
+  title: string;
   sections?:
     | {
         sectionTitle: string;
-        tableCount: number;
+        tablecount: number;
         id?: string | null;
       }[]
     | null;
@@ -275,14 +278,48 @@ export interface Order {
         priceAtOrder?: number | null;
         quantity?: number | null;
         subtotal?: number | null;
+        kitchenStatus?: ('ordered' | 'prepared' | 'delivered' | 'cancelled') | null;
         id?: string | null;
       }[]
     | null;
   kotNumber: number;
   tableNumber?: number | null;
-  status?: ('ordered' | 'prepared' | 'delivered') | null;
   invoiceNumber?: string | null;
   totalAmount?: number | null;
+  billingStatus?: ('pending' | 'completed' | 'cancelled') | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "qr-settings".
+ */
+export interface QrSetting {
+  id: string;
+  name: string;
+  tablecollections: string | Table;
+  qrConfig: {
+    enabled?: boolean | null;
+    baseurl: string;
+    size?: number | null;
+    logoImage?: (string | null) | Media;
+  };
+  printconfig?: {
+    printsize?: ('small' | 'medium' | 'large') | null;
+    includeTableNumber?: boolean | null;
+    printTemplate?: string | null;
+  };
+  generatedQRs?:
+    | {
+        tableId?: string | null;
+        tableName?: string | null;
+        qrUrl?: string | null;
+        qrBase64?: string | null;
+        printReady?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  status?: ('draft' | 'generating' | 'ready') | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -337,6 +374,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: string | Order;
+      } | null)
+    | ({
+        relationTo: 'qr-settings';
+        value: string | QrSetting;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -425,11 +466,12 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "tables_select".
  */
 export interface TablesSelect<T extends boolean = true> {
+  title?: T;
   sections?:
     | T
     | {
         sectionTitle?: T;
-        tableCount?: T;
+        tablecount?: T;
         id?: T;
       };
   updatedAt?: T;
@@ -510,13 +552,50 @@ export interface OrdersSelect<T extends boolean = true> {
         priceAtOrder?: T;
         quantity?: T;
         subtotal?: T;
+        kitchenStatus?: T;
         id?: T;
       };
   kotNumber?: T;
   tableNumber?: T;
-  status?: T;
   invoiceNumber?: T;
   totalAmount?: T;
+  billingStatus?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "qr-settings_select".
+ */
+export interface QrSettingsSelect<T extends boolean = true> {
+  name?: T;
+  tablecollections?: T;
+  qrConfig?:
+    | T
+    | {
+        enabled?: T;
+        baseurl?: T;
+        size?: T;
+        logoImage?: T;
+      };
+  printconfig?:
+    | T
+    | {
+        printsize?: T;
+        includeTableNumber?: T;
+        printTemplate?: T;
+      };
+  generatedQRs?:
+    | T
+    | {
+        tableId?: T;
+        tableName?: T;
+        qrUrl?: T;
+        qrBase64?: T;
+        printReady?: T;
+        id?: T;
+      };
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
 }

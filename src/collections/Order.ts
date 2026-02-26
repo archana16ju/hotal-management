@@ -31,6 +31,17 @@ const Orders: CollectionConfig = {
           name: 'subtotal',
           type: 'number',
           admin: { readOnly: true },
+        }, 
+        {
+          name: 'kitchenStatus',
+          type: 'select',
+          options: [
+            { label: 'Ordered', value: 'ordered' },
+            { label: 'Prepared', value: 'prepared' },
+            { label: 'Delivered', value: 'delivered' },
+            { label: 'Cancelled', value: 'cancelled' },
+          ],
+          defaultValue: 'ordered',
         },
       ],
     },
@@ -42,16 +53,6 @@ const Orders: CollectionConfig = {
     {
       name: 'tableNumber',
       type: 'number',
-    },
-    {
-      name: 'status',
-      type: 'select',
-      options: [
-        { label: 'Ordered', value: 'ordered' },
-        { label: 'Prepared', value: 'prepared' },
-        { label: 'Delivered', value: 'delivered' },
-      ],
-      defaultValue: 'ordered',
     },
     {
       name: 'invoiceNumber',
@@ -69,6 +70,19 @@ const Orders: CollectionConfig = {
         position: 'sidebar'
       },
     },
+    {
+      name: 'billingStatus',
+      type: 'select',
+      options: [
+        { label: 'Pending', value: 'pending' },
+        { label: 'Completed', value: 'completed' },
+        { label: 'Cancelled', value: 'cancelled' }, 
+      ],
+      defaultValue: 'pending',
+      admin: { 
+        position: 'sidebar',
+      }
+    }
   ],
 
   hooks: {
@@ -101,6 +115,23 @@ const Orders: CollectionConfig = {
           }
         }
         data.totalAmount = total;
+
+        console.log('DEBUG:', { billingStatus: data.billingStatus });
+        
+        if (data.billingStatus === 'cancelled') {
+    
+          const hasPreparedOrDeliveredItems = data.products?.some((item: any) => 
+            item.kitchenStatus === 'prepared' || item.kitchenStatus === 'delivered'
+          );
+          
+          console.log('Products kitchen statuses:', data.products?.map((p: any) => p.kitchenStatus));
+          
+          if (hasPreparedOrDeliveredItems) {
+            console.log('CANCEL BLOCKED!');
+            throw new Error('Cannot cancel - some kitchen items are Prepared or Delivered!');
+          }
+        }
+        console.log(' CANCEL ALLOWED');
 
         return data;
       },
